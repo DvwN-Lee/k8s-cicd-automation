@@ -6,12 +6,31 @@
 
 CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab, Docker Registry를 배포하여 완전한 CI/CD 파이프라인을 구현한 Infrastructure as Code 프로젝트입니다.
 
+**Cloud & Virtualization**
+
+![CloudStack](https://img.shields.io/badge/CloudStack-2E9FD5?style=flat&logo=apache-cloudstack&logoColor=white)
+
+**Infrastructure as Code**
+
 ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat&logo=terraform&logoColor=white)
 ![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=flat&logo=ansible&logoColor=white)
+
+**Containerization & Orchestration**
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![containerd](https://img.shields.io/badge/containerd-575757?style=flat&logo=containerd&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat&logo=kubernetes&logoColor=white)
+
+**Networking**
+
 ![Cilium](https://img.shields.io/badge/Cilium-F8C517?style=flat&logo=cilium&logoColor=black)
+![MetalLB](https://img.shields.io/badge/MetalLB-FF6600?style=flat&logoColor=white)
+
+**CI/CD & Registry**
+
 ![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=flat&logo=jenkins&logoColor=white)
 ![GitLab](https://img.shields.io/badge/GitLab-FC6D26?style=flat&logo=gitlab&logoColor=white)
+![Docker Registry](https://img.shields.io/badge/Docker_Registry-2496ED?style=flat&logo=docker&logoColor=white)
 
 ---
 
@@ -155,13 +174,16 @@ CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab
 
 ### 기술 스택
 
+- **Cloud Platform:** CloudStack
 - **IaC (Infrastructure as Code):** Terraform
 - **Configuration Management:** Ansible
+- **Container Platform:** Docker
+- **Container Runtime:** containerd v1.7.2
 - **Container Orchestration:** Kubernetes v1.28.15
-- **Container Runtime:** containerd (apt 패키지 최신 버전)
 - **CNI:** Cilium v1.14.5
-- **Load Balancer:** MetalLB
-- **CI/CD Tools:** Jenkins, GitLab CE, Docker Registry
+- **Load Balancer:** MetalLB v0.13.12
+- **CI/CD Tools:** Jenkins, GitLab CE
+- **Container Registry:** Docker Registry
 
 ---
 
