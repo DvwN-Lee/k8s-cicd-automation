@@ -36,28 +36,122 @@ CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab
 
 ### 항목별 성공 여부
 
-| 과제 | 항목 | 상태 | 비고 |
-|------|------|------|------|
-| **과제 #1** | CloudStack Provider 설정 | 완료 | API endpoint, API key, secret key 설정 |
-| | Isolated Network 생성 | 완료 | k8s-network (192.168.0.0/24) |
-| | Port Forwarding 규칙 생성 | 완료 | 7개 규칙 (SSH, K8s API, Jenkins, GitLab, Registry, TestApp) |
-| | Firewall 규칙 생성 | 완료 | 7개 포트 개방 (0.0.0.0/0) |
-| | VM 생성 (Master 1대, Worker 2대) | 완료 | k8s-m, k8s-w1, k8s-w2 |
-| | Terraform Output | 완료 | ansible_inventory 자동 생성 |
-| **과제 #2** | Ansible Inventory 생성 | 완료 | Terraform output 기반 자동 생성 |
-| | containerd, kubeadm 설치 | 완료 | v1.28.15 |
-| | kubeadm init | 완료 | Control Plane 초기화 |
-| | Worker 노드 조인 | 완료 | 2대 조인 완료 |
-| | CNI (Cilium) 구성 | 완료 | v1.14.5, kube-proxy 대체 모드 |
-| | MetalLB 구성 | 완료 | L2 모드, 192.168.0.200-250 |
-| **과제 #3** | Jenkins 배포 | 완료 | NodePort 30880 |
-| | GitLab 배포 | 완료 | NodePort 30080, 30022 |
-| | Docker Registry 배포 | 완료 | NodePort 30500 |
-| | PVC 구성 | 완료 | hostPath 기반 |
-| **과제 #4** | GitLab 테스트 프로젝트 | 완료 | testapp |
-| | Jenkins Pipeline | 완료 | Build, Push, Deploy |
-| | Registry 이미지 Push | 완료 | testapp:latest |
-| | Kubernetes 배포 | 완료 | 2 replicas (k8s-w1, k8s-w2 분산) |
+<table>
+<thead>
+<tr>
+<th align="center">과제</th>
+<th>항목</th>
+<th align="center">상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center" rowspan="6"><strong>과제 1</strong></td>
+<td>CloudStack Provider 설정</td>
+<td align="center">완료</td>
+<td>API endpoint, API key, secret key 설정</td>
+</tr>
+<tr>
+<td>Isolated Network 생성</td>
+<td align="center">완료</td>
+<td>k8s-network (192.168.0.0/24)</td>
+</tr>
+<tr>
+<td>Port Forwarding 규칙 생성</td>
+<td align="center">완료</td>
+<td>7개 규칙 (SSH, K8s API, Jenkins, GitLab, Registry, TestApp)</td>
+</tr>
+<tr>
+<td>Firewall 규칙 생성</td>
+<td align="center">완료</td>
+<td>7개 포트 개방 (0.0.0.0/0)</td>
+</tr>
+<tr>
+<td>VM 생성 (Master 1대, Worker 2대)</td>
+<td align="center">완료</td>
+<td>k8s-m, k8s-w1, k8s-w2</td>
+</tr>
+<tr>
+<td>Terraform Output</td>
+<td align="center">완료</td>
+<td>ansible_inventory 자동 생성</td>
+</tr>
+<tr>
+<td align="center" rowspan="6"><strong>과제 2</strong></td>
+<td>Ansible Inventory 생성</td>
+<td align="center">완료</td>
+<td>Terraform output 기반 자동 생성</td>
+</tr>
+<tr>
+<td>containerd, kubeadm 설치</td>
+<td align="center">완료</td>
+<td>v1.28.15</td>
+</tr>
+<tr>
+<td>kubeadm init</td>
+<td align="center">완료</td>
+<td>Control Plane 초기화</td>
+</tr>
+<tr>
+<td>Worker 노드 조인</td>
+<td align="center">완료</td>
+<td>2대 조인 완료</td>
+</tr>
+<tr>
+<td>CNI (Cilium) 구성</td>
+<td align="center">완료</td>
+<td>v1.14.5, kube-proxy 대체 모드</td>
+</tr>
+<tr>
+<td>MetalLB 구성</td>
+<td align="center">완료</td>
+<td>L2 모드, 192.168.0.200-250</td>
+</tr>
+<tr>
+<td align="center" rowspan="4"><strong>과제 3</strong></td>
+<td>Jenkins 배포</td>
+<td align="center">완료</td>
+<td>NodePort 30880</td>
+</tr>
+<tr>
+<td>GitLab 배포</td>
+<td align="center">완료</td>
+<td>NodePort 30080, 30022</td>
+</tr>
+<tr>
+<td>Docker Registry 배포</td>
+<td align="center">완료</td>
+<td>NodePort 30500</td>
+</tr>
+<tr>
+<td>PVC 구성</td>
+<td align="center">완료</td>
+<td>hostPath 기반</td>
+</tr>
+<tr>
+<td align="center" rowspan="4"><strong>과제 4</strong></td>
+<td>GitLab 테스트 프로젝트</td>
+<td align="center">완료</td>
+<td>testapp</td>
+</tr>
+<tr>
+<td>Jenkins Pipeline</td>
+<td align="center">완료</td>
+<td>Build, Push, Deploy</td>
+</tr>
+<tr>
+<td>Registry 이미지 Push</td>
+<td align="center">완료</td>
+<td>testapp:latest</td>
+</tr>
+<tr>
+<td>Kubernetes 배포</td>
+<td align="center">완료</td>
+<td>2 replicas (k8s-w1, k8s-w2 분산)</td>
+</tr>
+</tbody>
+</table>
 
 ### 기술 스택
 
@@ -77,34 +171,20 @@ CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab
 
 ```mermaid
 graph TB
+    User["User"] --> PIP
+
     subgraph CloudStack["CloudStack Cloud"]
         subgraph PublicNetwork["Public Network"]
-            PIP["Public IP<br/><YOUR_PUBLIC_IP>"]
+            PIP["Public IP"]
         end
 
-        subgraph IsolatedNetwork["Isolated Network (192.168.0.0/24)"]
-            subgraph Master["k8s-m (Control Plane)"]
-                M_SPEC["Medium: 2 CPU, 4GB RAM"]
-                M_IP["<MASTER_IP>"]
-            end
-
-            subgraph Worker1["k8s-w1 (DevOps Node)"]
-                W1_SPEC["Large: 4 CPU, 8GB RAM"]
-                W1_IP["<WORKER1_IP>"]
-                GitLab["GitLab CE"]
-                Jenkins["Jenkins"]
-                Registry["Docker Registry"]
-            end
-
-            subgraph Worker2["k8s-w2 (App Node)"]
-                W2_SPEC["Medium: 2 CPU, 4GB RAM"]
-                W2_IP["<WORKER2_IP>"]
-                TestApp["testapp"]
-            end
+        subgraph IsolatedNetwork["Isolated Network - 192.168.0.0/24"]
+            Master["k8s-m Control Plane<br/>Medium: 2 CPU, 4GB RAM"]
+            Worker1["k8s-w1 DevOps Node<br/>Large: 4 CPU, 8GB RAM<br/>GitLab, Jenkins, Registry"]
+            Worker2["k8s-w2 App Node<br/>Medium: 2 CPU, 4GB RAM<br/>testapp"]
         end
     end
 
-    User["User"] --> PIP
     PIP -->|"2222, 6443"| Master
     PIP -->|"30080, 30022, 30880, 30500"| Worker1
     PIP -->|"30800"| Worker2
@@ -114,41 +194,99 @@ graph TB
 
 ```mermaid
 graph LR
-    subgraph External["외부 접근"]
-        Internet["Internet/VPN"]
-    end
+    Internet["Internet/VPN"] -->|Port Forward| NAT
 
-    subgraph CloudStack["CloudStack"]
-        NAT["NAT/Port Forward<br/><YOUR_PUBLIC_IP>"]
+    subgraph CloudStack
+        NAT["NAT/Port Forward"]
 
-        subgraph K8sNetwork["k8s-network (192.168.0.0/24)"]
-            Master["k8s-m<br/><MASTER_IP>"]
-            W1["k8s-w1<br/><WORKER1_IP>"]
-            W2["k8s-w2<br/><WORKER2_IP>"]
+        subgraph Network["k8s-network - 192.168.0.0/24"]
+            Master["k8s-m"]
+            W1["k8s-w1"]
+            W2["k8s-w2"]
         end
     end
 
-    Internet -->|Port Forward| NAT
-    NAT -->|"2222 -> 22"| Master
-    NAT -->|"30080 -> 30080"| W1
-    NAT -->|"30022 -> 30022"| W1
-    NAT -->|"30880 -> 30880"| W1
-    NAT -->|"30500 -> 30500"| W1
-    NAT -->|"6443 -> 6443"| Master
-    NAT -->|"30800 -> 30800"| W2
+    NAT -->|"2222:22"| Master
+    NAT -->|"6443:6443"| Master
+    NAT -->|"30080:30080"| W1
+    NAT -->|"30022:30022"| W1
+    NAT -->|"30880:30880"| W1
+    NAT -->|"30500:30500"| W1
+    NAT -->|"30800:30800"| W2
 ```
 
 ### Port Forwarding 규칙
 
-| 서비스 | 외부 포트 | NodePort | Container Port | 포트 포워딩 대상 | Pod 배치 |
-|--------|-----------|----------|----------------|-----------------|---------|
-| SSH (Jump) | 2222 | - | 22 | k8s-m | - |
-| Kubernetes API | 6443 | - | 6443 | k8s-m | - |
-| GitLab HTTP | 30080 | 30080 | 80 | k8s-w1 | k8s-w1 |
-| GitLab SSH | 30022 | 30022 | 22 | k8s-w1 | k8s-w1 |
-| Jenkins | 30880 | 30880 | 8080 | k8s-w1 | k8s-w1 |
-| Docker Registry | 30500 | 30500 | 5000 | k8s-w1 | k8s-w1 |
-| TestApp | 30800 | 30800 | 80 | k8s-w2 | k8s-w2 |
+<table>
+<thead>
+<tr>
+<th>서비스</th>
+<th align="center">외부 포트</th>
+<th align="center">NodePort</th>
+<th align="center">Container Port</th>
+<th align="center">포트 포워딩 대상</th>
+<th align="center">Pod 배치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SSH (Jump)</td>
+<td align="center">2222</td>
+<td align="center">-</td>
+<td align="center">22</td>
+<td align="center">k8s-m</td>
+<td align="center">-</td>
+</tr>
+<tr>
+<td>Kubernetes API</td>
+<td align="center">6443</td>
+<td align="center">-</td>
+<td align="center">6443</td>
+<td align="center">k8s-m</td>
+<td align="center">-</td>
+</tr>
+<tr>
+<td>GitLab HTTP</td>
+<td align="center">30080</td>
+<td align="center">30080</td>
+<td align="center">80</td>
+<td align="center">k8s-w1</td>
+<td align="center">k8s-w1</td>
+</tr>
+<tr>
+<td>GitLab SSH</td>
+<td align="center">30022</td>
+<td align="center">30022</td>
+<td align="center">22</td>
+<td align="center">k8s-w1</td>
+<td align="center">k8s-w1</td>
+</tr>
+<tr>
+<td>Jenkins</td>
+<td align="center">30880</td>
+<td align="center">30880</td>
+<td align="center">8080</td>
+<td align="center">k8s-w1</td>
+<td align="center">k8s-w1</td>
+</tr>
+<tr>
+<td>Docker Registry</td>
+<td align="center">30500</td>
+<td align="center">30500</td>
+<td align="center">5000</td>
+<td align="center">k8s-w1</td>
+<td align="center">k8s-w1</td>
+</tr>
+<tr>
+<td>TestApp</td>
+<td align="center">30800</td>
+<td align="center">30800</td>
+<td align="center">80</td>
+<td align="center">k8s-w2</td>
+<td align="center">k8s-w2</td>
+</tr>
+</tbody>
+</table>
 
 **노드 역할 분리:**
 - **k8s-w1 (DevOps Node):** GitLab, Jenkins, Registry 등 DevOps 도구 배치 (Large: 4 CPU, 8GB RAM)
@@ -385,12 +523,37 @@ kubectl get pods -n devops -l app=testapp
 
 ### 접근 URL
 
-| 서비스 | URL | 비고 |
-|--------|-----|------|
-| GitLab | http://\<YOUR_PUBLIC_IP\>:30080 | root / (Secret에 정의) |
-| Jenkins | http://\<YOUR_PUBLIC_IP\>:30880 | 초기 비밀번호 확인 필요 |
-| Docker Registry | http://\<YOUR_PUBLIC_IP\>:30500 | 비보안 레지스트리 |
-| Kubernetes API | https://\<YOUR_PUBLIC_IP\>:6443 | kubeconfig 필요 |
+<table>
+<thead>
+<tr>
+<th>서비스</th>
+<th>URL</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitLab</td>
+<td>http://&lt;YOUR_PUBLIC_IP&gt;:30080</td>
+<td>root / (Secret에 정의)</td>
+</tr>
+<tr>
+<td>Jenkins</td>
+<td>http://&lt;YOUR_PUBLIC_IP&gt;:30880</td>
+<td>초기 비밀번호 확인 필요</td>
+</tr>
+<tr>
+<td>Docker Registry</td>
+<td>http://&lt;YOUR_PUBLIC_IP&gt;:30500</td>
+<td>비보안 레지스트리</td>
+</tr>
+<tr>
+<td>Kubernetes API</td>
+<td>https://&lt;YOUR_PUBLIC_IP&gt;:6443</td>
+<td>kubeconfig 필요</td>
+</tr>
+</tbody>
+</table>
 
 ### SSH 접근
 
@@ -408,12 +571,37 @@ ssh -i ~/.ssh/k8s_key -o ProxyCommand='ssh -i ~/.ssh/k8s_key -p 2222 -W %h:%p ub
 
 ### Terraform 변수
 
-| 변수명 | 기본값 | 설명 |
-|--------|--------|------|
-| `network_name` | `k8s-network` | 네트워크 이름 |
-| `network_cidr` | `192.168.0.0/24` | 네트워크 CIDR 대역 |
-| `network_gateway` | `192.168.0.1` | 게이트웨이 주소 |
-| `zone_name` | `DKU` | CloudStack Zone 이름 |
+<table>
+<thead>
+<tr>
+<th>변수명</th>
+<th>기본값</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>network_name</code></td>
+<td><code>k8s-network</code></td>
+<td>네트워크 이름</td>
+</tr>
+<tr>
+<td><code>network_cidr</code></td>
+<td><code>192.168.0.0/24</code></td>
+<td>네트워크 CIDR 대역</td>
+</tr>
+<tr>
+<td><code>network_gateway</code></td>
+<td><code>192.168.0.1</code></td>
+<td>게이트웨이 주소</td>
+</tr>
+<tr>
+<td><code>zone_name</code></td>
+<td><code>DKU</code></td>
+<td>CloudStack Zone 이름</td>
+</tr>
+</tbody>
+</table>
 
 ### Ansible 변수
 
@@ -428,12 +616,52 @@ metallb_ip_range: "192.168.0.200-192.168.0.250"
 
 ### Kubernetes 리소스 요약
 
-| 서비스 | Namespace | Replicas | Memory Limit | CPU Limit | 배포 노드 |
-|--------|-----------|----------|--------------|-----------|----------|
-| Jenkins | devops | 1 | 2Gi | 1000m | k8s-w1 |
-| GitLab | devops | 1 | 5Gi | 2000m | k8s-w1 |
-| Registry | devops | 1 | 512Mi | 500m | k8s-w1 |
-| testapp | devops | 2 | - | - | k8s-w1, k8s-w2 |
+<table>
+<thead>
+<tr>
+<th>서비스</th>
+<th align="center">Namespace</th>
+<th align="center">Replicas</th>
+<th align="center">Memory Limit</th>
+<th align="center">CPU Limit</th>
+<th align="center">배포 노드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jenkins</td>
+<td align="center">devops</td>
+<td align="center">1</td>
+<td align="center">2Gi</td>
+<td align="center">1000m</td>
+<td align="center">k8s-w1</td>
+</tr>
+<tr>
+<td>GitLab</td>
+<td align="center">devops</td>
+<td align="center">1</td>
+<td align="center">5Gi</td>
+<td align="center">2000m</td>
+<td align="center">k8s-w1</td>
+</tr>
+<tr>
+<td>Registry</td>
+<td align="center">devops</td>
+<td align="center">1</td>
+<td align="center">512Mi</td>
+<td align="center">500m</td>
+<td align="center">k8s-w1</td>
+</tr>
+<tr>
+<td>testapp</td>
+<td align="center">devops</td>
+<td align="center">2</td>
+<td align="center">-</td>
+<td align="center">-</td>
+<td align="center">k8s-w1, k8s-w2</td>
+</tr>
+</tbody>
+</table>
 
 ---
 
