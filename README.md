@@ -148,7 +148,7 @@ CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab
 <tr>
 <td>Kubernetes 배포</td>
 <td align="center">완료</td>
-<td>2 replicas (k8s-w1, k8s-w2 분산)</td>
+<td>2 replicas</td>
 </tr>
 </tbody>
 </table>
@@ -181,7 +181,7 @@ graph TB
         subgraph IsolatedNetwork["Isolated Network - 192.168.0.0/24"]
             Master["k8s-m Control Plane<br/>Medium: 2 CPU, 4GB RAM"]
             Worker1["k8s-w1 DevOps Node<br/>Large: 4 CPU, 8GB RAM<br/>GitLab, Jenkins, Registry"]
-            Worker2["k8s-w2 App Node<br/>Medium: 2 CPU, 4GB RAM<br/>testapp"]
+            Worker2["k8s-w2 App Node<br/>Medium: 2 CPU, 4GB RAM"]
         end
     end
 
@@ -283,14 +283,14 @@ graph LR
 <td align="center">30800</td>
 <td align="center">80</td>
 <td align="center">k8s-w2</td>
-<td align="center">k8s-w2</td>
+<td align="center">-</td>
 </tr>
 </tbody>
 </table>
 
 **노드 역할 분리:**
 - **k8s-w1 (DevOps Node):** GitLab, Jenkins, Registry 등 DevOps 도구 배치 (Large: 4 CPU, 8GB RAM)
-- **k8s-w2 (App Node):** testapp 등 애플리케이션 워크로드 배치 (Medium: 2 CPU, 4GB RAM)
+- **k8s-w2 (App Node):** 애플리케이션 워크로드 배치 (Medium: 2 CPU, 4GB RAM)
 
 ---
 
@@ -654,11 +654,11 @@ metallb_ip_range: "192.168.0.200-192.168.0.250"
 </tr>
 <tr>
 <td>testapp</td>
-<td align="center">devops</td>
+<td align="center">default</td>
 <td align="center">2</td>
+<td align="center">64Mi</td>
+<td align="center">50m</td>
 <td align="center">-</td>
-<td align="center">-</td>
-<td align="center">k8s-w1, k8s-w2</td>
 </tr>
 </tbody>
 </table>
