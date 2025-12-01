@@ -55,7 +55,7 @@ CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab
 <tr>
 <td>Isolated Network 생성</td>
 <td align="center">완료</td>
-<td>k8s-network (192.168.0.0/24)</td>
+<td>k8s-network</td>
 </tr>
 <tr>
 <td>Port Forwarding 규칙 생성</td>
@@ -106,7 +106,7 @@ CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab
 <tr>
 <td>MetalLB 구성</td>
 <td align="center">완료</td>
-<td>L2 모드, 192.168.0.200-250</td>
+<td>L2 모드</td>
 </tr>
 <tr>
 <td align="center" rowspan="4"><strong>과제 3</strong></td>
@@ -178,7 +178,7 @@ graph TB
             PIP["Public IP"]
         end
 
-        subgraph IsolatedNetwork["Isolated Network - 192.168.0.0/24"]
+        subgraph IsolatedNetwork["Isolated Network"]
             Master["k8s-m Control Plane<br/>Medium: 2 CPU, 4GB RAM"]
             Worker1["k8s-w1 DevOps Node<br/>Large: 4 CPU, 8GB RAM<br/>GitLab, Jenkins, Registry"]
             Worker2["k8s-w2 App Node<br/>Medium: 2 CPU, 4GB RAM"]
@@ -199,7 +199,7 @@ graph LR
     subgraph CloudStack
         NAT["NAT/Port Forward"]
 
-        subgraph Network["k8s-network - 192.168.0.0/24"]
+        subgraph Network["k8s-network"]
             Master["k8s-m"]
             W1["k8s-w1"]
             W2["k8s-w2"]
@@ -328,7 +328,7 @@ ssh-keygen -t rsa -b 4096 -f ~/.ssh/k8s_key -N ""
 
 ```hcl
 # CloudStack API 설정
-api_url    = "https://your-cloudstack-api-url/client/api"
+api_url    = "<CloudStack_API_Endpoint>"
 api_key    = "<YOUR_API_KEY>"
 secret_key = "<YOUR_SECRET_KEY>"
 
@@ -403,8 +403,6 @@ kubectl apply -f manifests/jenkins/
 kubectl logs deployment/jenkins -n devops -c jenkins | grep -A 5 "Jenkins initial setup"
 ```
 
-접속: `http://<YOUR_PUBLIC_IP>:30880`
-
 #### 3.2 GitLab 배포
 
 ```bash
@@ -414,15 +412,10 @@ kubectl apply -f manifests/gitlab/
 kubectl get secret gitlab-root-password -n devops -o jsonpath="{.data.password}" | base64 -d
 ```
 
-접속: `http://<YOUR_PUBLIC_IP>:30080`
-
 #### 3.3 Docker Registry 배포
 
 ```bash
 kubectl apply -f manifests/registry/
-
-# Registry 확인
-curl http://<YOUR_PUBLIC_IP>:30500/v2/_catalog
 ```
 
 ### 4. CI/CD 파이프라인 검증
@@ -435,7 +428,7 @@ curl http://<YOUR_PUBLIC_IP>:30500/v2/_catalog
 ```bash
 cd testapp
 git init
-git remote add origin http://<YOUR_PUBLIC_IP>:30080/<username>/testapp.git
+git remote add origin <GitLab_Repository_URL>
 git add .
 git commit -m "Initial commit"
 git push -u origin main
@@ -447,7 +440,7 @@ git push -u origin main
 2. Pipeline 섹션에서:
    - Definition: `Pipeline script from SCM`
    - SCM: `Git`
-   - Repository URL: `http://<YOUR_PUBLIC_IP>:30080/<username>/testapp.git`
+   - Repository URL: `<GitLab_Repository_URL>`
    - Script Path: `Jenkinsfile`
 
 #### 4.3 빌드 실행
@@ -455,9 +448,6 @@ git push -u origin main
 Jenkins에서 "Build Now" 클릭 후 결과 확인:
 
 ```bash
-# Registry에 이미지 확인
-curl http://<YOUR_PUBLIC_IP>:30500/v2/testapp/tags/list
-
 # Kubernetes 배포 확인
 kubectl get pods -n devops -l app=testapp
 ```
@@ -521,49 +511,49 @@ kubectl get pods -n devops -l app=testapp
 
 ## 서비스 접근 정보
 
-### 접근 URL
+### 서비스 포트
 
 <table>
 <thead>
 <tr>
 <th>서비스</th>
-<th>URL</th>
+<th>포트</th>
 <th>비고</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>GitLab</td>
-<td>http://&lt;YOUR_PUBLIC_IP&gt;:30080</td>
+<td>GitLab HTTP</td>
+<td>30080</td>
 <td>root / (Secret에 정의)</td>
 </tr>
 <tr>
+<td>GitLab SSH</td>
+<td>30022</td>
+<td>Git 작업용</td>
+</tr>
+<tr>
 <td>Jenkins</td>
-<td>http://&lt;YOUR_PUBLIC_IP&gt;:30880</td>
+<td>30880</td>
 <td>초기 비밀번호 확인 필요</td>
 </tr>
 <tr>
 <td>Docker Registry</td>
-<td>http://&lt;YOUR_PUBLIC_IP&gt;:30500</td>
+<td>30500</td>
 <td>비보안 레지스트리</td>
 </tr>
 <tr>
 <td>Kubernetes API</td>
-<td>https://&lt;YOUR_PUBLIC_IP&gt;:6443</td>
+<td>6443</td>
 <td>kubeconfig 필요</td>
+</tr>
+<tr>
+<td>SSH (Master)</td>
+<td>2222</td>
+<td>Master 노드 접근</td>
 </tr>
 </tbody>
 </table>
-
-### SSH 접근
-
-```bash
-# Master 노드 접속
-ssh -i ~/.ssh/k8s_key -p 2222 ubuntu@<YOUR_PUBLIC_IP>
-
-# Worker 노드 접속 (ProxyJump)
-ssh -i ~/.ssh/k8s_key -o ProxyCommand='ssh -i ~/.ssh/k8s_key -p 2222 -W %h:%p ubuntu@<YOUR_PUBLIC_IP>' ubuntu@<WORKER1_IP>
-```
 
 ---
 
@@ -587,12 +577,12 @@ ssh -i ~/.ssh/k8s_key -o ProxyCommand='ssh -i ~/.ssh/k8s_key -p 2222 -W %h:%p ub
 </tr>
 <tr>
 <td><code>network_cidr</code></td>
-<td><code>192.168.0.0/24</code></td>
+<td>-</td>
 <td>네트워크 CIDR 대역</td>
 </tr>
 <tr>
 <td><code>network_gateway</code></td>
-<td><code>192.168.0.1</code></td>
+<td>-</td>
 <td>게이트웨이 주소</td>
 </tr>
 <tr>
@@ -610,8 +600,6 @@ ssh -i ~/.ssh/k8s_key -o ProxyCommand='ssh -i ~/.ssh/k8s_key -p 2222 -W %h:%p ub
 ```yaml
 kubernetes_version: "1.28.15-1.1"
 cilium_version: "1.14.5"
-native_routing_cidr: "192.168.0.0/24"
-metallb_ip_range: "192.168.0.200-192.168.0.250"
 ```
 
 ### Kubernetes 리소스 요약
