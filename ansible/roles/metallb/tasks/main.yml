@@ -1,0 +1,39 @@
+---
+# Install MetalLB
+
+- name: Check if MetalLB namespace exists
+  command: kubectl get namespace metallb-system
+  register: metallb_ns
+  changed_when: false
+  failed_when: false
+  become_user: ubuntu
+
+- name: Install MetalLB
+  command: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+  become_user: ubuntu
+  when: metallb_ns.rc != 0
+
+- name: Wait for MetalLB controller to be ready
+  command: kubectl wait --namespace metallb-system --for=condition=ready pod --selector=app=metallb --timeout=120s
+  become_user: ubuntu
+  when: metallb_ns.rc != 0
+
+- name: Create MetalLB IP pool configuration from template
+  template:
+    src: "{{ playbook_dir }}/../manifests/metallb/config.yaml.j2"
+    dest: /home/ubuntu/metallb-config.yaml
+    owner: ubuntu
+    group: ubuntu
+
+- name: Wait for MetalLB webhook to be ready
+  pause:
+    seconds: 30
+  when: metallb_ns.rc != 0
+
+- name: Apply MetalLB configuration
+  command: kubectl apply -f /home/ubuntu/metallb-config.yaml
+  become_user: ubuntu
+  register: metallb_config
+  until: metallb_config.rc == 0
+  retries: 5
+  delay: 10

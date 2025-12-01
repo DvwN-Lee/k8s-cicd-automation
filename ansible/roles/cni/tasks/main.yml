@@ -1,0 +1,51 @@
+---
+# Install Cilium CNI
+
+- name: Install Cilium CLI
+  shell: |
+    CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+    CLI_ARCH=amd64
+    if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz
+    tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+    rm -f cilium-linux-${CLI_ARCH}.tar.gz
+  args:
+    creates: /usr/local/bin/cilium
+
+- name: Wait for Kubernetes API to be ready
+  command: kubectl cluster-info
+  register: cluster_info
+  until: cluster_info.rc == 0
+  retries: 30
+  delay: 10
+  changed_when: false
+  become_user: ubuntu
+
+- name: Check if Cilium is already installed
+  command: kubectl get pods -n kube-system -l k8s-app=cilium -o name
+  register: cilium_pods
+  changed_when: false
+  failed_when: false
+  become_user: ubuntu
+
+- name: Install Cilium
+  command: >
+    cilium install --version {{ cilium_version }}
+    --set nativeRoutingCIDR={{ native_routing_cidr | default('192.168.0.0/24') }}
+    --set tunnel=vxlan
+    --set ipam.mode=kubernetes
+  become_user: ubuntu
+  when: cilium_pods.stdout == ""
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+
+- name: Wait for Cilium to be ready
+  command: cilium status --wait
+  become_user: ubuntu
+  environment:
+    KUBECONFIG: /home/ubuntu/.kube/config
+  register: cilium_status
+  until: cilium_status.rc == 0
+  retries: 30
+  delay: 10
+  changed_when: false

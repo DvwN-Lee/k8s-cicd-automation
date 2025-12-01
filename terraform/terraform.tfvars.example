@@ -1,0 +1,31 @@
+# CloudStack API 설정 (필수)
+cloudstack_api_url    = "https://dku.kloud.zone/client/api"
+cloudstack_api_key    = "YOUR_API_KEY"
+cloudstack_secret_key = "YOUR_SECRET_KEY"
+
+# Zone 설정
+zone_name = "DKU"
+
+# Network 설정
+network_name     = "k8s-network"
+network_offering = "DefaultIsolatedNetworkOfferingWithSourceNatService"
+network_cidr     = "192.168.0.0/24"
+network_gateway  = "192.168.0.1"
+
+# VM Template
+template_name = "Ubuntu 24.04 LTS"
+
+# Service Offerings
+master_offering = "Large"   # 4 CPU, 8GB RAM
+worker_offering = "Medium"  # 2 CPU, 4GB RAM
+
+# Disk 설정
+root_disk_size = 20  # GB
+
+# SSH Key
+ssh_key_name   = "k8s-key"
+ssh_public_key = "ssh-rsa AAAA... your-public-key-here"
+
+# VM 이름
+master_name  = "k8s-m"
+worker_names = ["k8s-w1", "k8s-w2"]

@@ -1,0 +1,18 @@
+---
+# Join worker nodes to the cluster
+
+- name: Check if node is already joined
+  stat:
+    path: /etc/kubernetes/kubelet.conf
+  register: kubelet_conf
+
+- name: Get join command from master
+  command: cat /home/ubuntu/join_command.sh
+  delegate_to: "{{ groups['masters'][0] }}"
+  register: join_command
+  changed_when: false
+  when: not kubelet_conf.stat.exists
+
+- name: Join cluster
+  command: "{{ join_command.stdout }}"
+  when: not kubelet_conf.stat.exists

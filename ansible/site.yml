@@ -1,0 +1,53 @@
+---
+# Kubernetes Cluster Setup Playbook
+
+- name: Prepare all nodes
+  hosts: k8s_cluster
+  become: yes
+  roles:
+    - common
+    - containerd
+    - kubernetes
+
+- name: Initialize master node
+  hosts: masters
+  become: yes
+  roles:
+    - k8s_master
+
+- name: Join worker nodes
+  hosts: workers
+  become: yes
+  roles:
+    - k8s_worker
+
+- name: Install CNI and MetalLB on master
+  hosts: masters
+  become: yes
+  roles:
+    - cni
+    - metallb
+
+- name: Verify cluster
+  hosts: masters
+  become: yes
+  tasks:
+    - name: Get cluster nodes
+      command: kubectl get nodes -o wide
+      become_user: ubuntu
+      register: nodes_output
+      changed_when: false
+
+    - name: Display cluster nodes
+      debug:
+        var: nodes_output.stdout_lines
+
+    - name: Get all pods
+      command: kubectl get pods -A
+      become_user: ubuntu
+      register: pods_output
+      changed_when: false
+
+    - name: Display all pods
+      debug:
+        var: pods_output.stdout_lines

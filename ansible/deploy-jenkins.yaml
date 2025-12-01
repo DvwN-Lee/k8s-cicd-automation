@@ -1,0 +1,120 @@
+---
+- name: Deploy Jenkins to Kubernetes
+  hosts: k8s-m
+  gather_facts: no
+  vars:
+    jenkins_namespace: devops
+  tasks:
+    - name: Apply Jenkins Deployment
+      shell: |
+        cat << 'JENKINS_EOF' | kubectl apply -f -
+        ---
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: jenkins
+          namespace: devops
+          labels:
+            app: jenkins
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: jenkins
+          template:
+            metadata:
+              labels:
+                app: jenkins
+            spec:
+              securityContext:
+                fsGroup: 1000
+                runAsUser: 1000
+              containers:
+                - name: jenkins
+                  image: jenkins/jenkins:lts
+                  ports:
+                    - containerPort: 8080
+                      name: http
+                    - containerPort: 50000
+                      name: jnlp
+                  resources:
+                    requests:
+                      memory: "512Mi"
+                      cpu: "250m"
+                    limits:
+                      memory: "2Gi"
+                      cpu: "1000m"
+                  volumeMounts:
+                    - name: jenkins-data
+                      mountPath: /var/jenkins_home
+                  env:
+                    - name: JAVA_OPTS
+                      value: "-Xmx1024m -Xms512m"
+                  livenessProbe:
+                    httpGet:
+                      path: /login
+                      port: 8080
+                    initialDelaySeconds: 120
+                    periodSeconds: 10
+                    timeoutSeconds: 5
+                    failureThreshold: 5
+                  readinessProbe:
+                    httpGet:
+                      path: /login
+                      port: 8080
+                    initialDelaySeconds: 60
+                    periodSeconds: 10
+                    timeoutSeconds: 5
+                    failureThreshold: 3
+              volumes:
+                - name: jenkins-data
+                  persistentVolumeClaim:
+                    claimName: jenkins-pvc
+              nodeSelector:
+                kubernetes.io/hostname: k8s-w1
+        JENKINS_EOF
+      register: jenkins_deploy_result
+
+    - name: Apply Jenkins Service
+      shell: |
+        cat << 'SERVICE_EOF' | kubectl apply -f -
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: jenkins
+          namespace: devops
+          labels:
+            app: jenkins
+        spec:
+          type: LoadBalancer
+          ports:
+            - name: http
+              port: 8080
+              targetPort: 8080
+            - name: jnlp
+              port: 50000
+              targetPort: 50000
+          selector:
+            app: jenkins
+        SERVICE_EOF
+      register: jenkins_service_result
+
+    - name: Check Jenkins Deployment Status
+      shell: kubectl get deployment jenkins -n devops
+      register: jenkins_status
+      retries: 3
+      delay: 10
+      until: "'1/1' in jenkins_status.stdout or 'Running' in jenkins_status.stdout"
+
+    - name: Show Jenkins Deployment Status
+      debug:
+        msg: "{{ jenkins_status.stdout }}"
+
+    - name: Show Jenkins Service Info
+      shell: kubectl get svc jenkins -n devops
+      register: jenkins_svc
+
+    - name: Display Jenkins Service
+      debug:
+        msg: "{{ jenkins_svc.stdout }}"

@@ -1,0 +1,48 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jenkins-config
+  namespace: devops
+  labels:
+    app: jenkins
+data:
+  # Jenkins Configuration as Code (JCasC)
+  jenkins.yaml: |
+    jenkins:
+      systemMessage: "DKU CI/CD Pipeline - Jenkins Server"
+      numExecutors: 2
+      mode: NORMAL
+      scmCheckoutRetryCount: 3
+
+      securityRealm:
+        local:
+          allowsSignup: false
+
+      authorizationStrategy:
+        loggedInUsersCanDoAnything:
+          allowAnonymousRead: false
+
+      globalNodeProperties:
+        - envVars:
+            env:
+              - key: "DOCKER_REGISTRY"
+                value: "10.0.1.59:30500"
+              - key: "GITLAB_URL"
+                value: "http://10.0.1.59:30080"
+
+    unclassified:
+      location:
+        url: "http://10.0.1.59:30880/"
+        adminAddress: "admin@dku.local"
+
+      gitLabConnectionConfig:
+        connections:
+          - name: "GitLab DKU"
+            gitLabHostUrl: "http://10.0.1.59:30080"
+
+    tool:
+      git:
+        installations:
+          - name: "Default"
+            home: "git"

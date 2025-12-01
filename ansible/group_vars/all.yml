@@ -1,0 +1,26 @@
+# Kubernetes Version
+kubernetes_version: "1.28"
+kubernetes_apt_version: "1.28.15-1.1"
+
+# Container Runtime
+containerd_version: "1.7.2"
+
+# CNI - Cilium
+cilium_version: "1.14.5"
+native_routing_cidr: "192.168.0.0/24"  # CloudStack VM Private Network CIDR
+
+# MetalLB
+metallb_version: "v0.13.12"
+metallb_ip_range: "192.168.0.200-192.168.0.250"
+
+# Cluster Configuration
+pod_network_cidr: "10.244.0.0/16"
+service_cidr: "10.96.0.0/12"
+cluster_name: "k8s-cluster"
+
+# Master Node Info
+master_ip: "192.168.0.174"
+master_name: "k8s-m"
+
+# Public IP for API access
+public_ip: "10.0.1.59"
