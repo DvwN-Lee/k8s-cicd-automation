@@ -1,7 +1,7 @@
 # DKU CI/CD Infrastructure
 
 
-CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab, Docker Registry를 배포하여 완전한 CI/CD 파이프라인을 구현한 Infrastructure as Code 프로젝트입니다.
+CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab, Docker Registry를 배포하여 CI/CD 파이프라인을 구현한 Infrastructure as Code 프로젝트입니다.
 
 **Cloud & Virtualization**
 
