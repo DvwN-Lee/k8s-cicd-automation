@@ -39,8 +39,9 @@ spec:
                   key: gitlab-root-password
             - name: GITLAB_OMNIBUS_CONFIG
               value: |
-                external_url 'http://gitlab.local'
-                gitlab_shell['ssh_port'] = 22
+                external_url 'http://YOUR_PUBLIC_IP:30080'
+                gitlab_rails['gitlab_shell_ssh_port'] = 30022
+                gitlab_shell['ssh_port'] = 30022
           volumeMounts:
             - name: gitlab-config
               mountPath: /etc/gitlab

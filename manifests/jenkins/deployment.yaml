@@ -48,6 +48,8 @@ spec:
           env:
             - name: JAVA_OPTS
               value: "-Xmx1024m -Xms512m"
+            - name: DOCKER_HOST
+              value: tcp://localhost:2375
           livenessProbe:
             httpGet:
               path: /login
@@ -64,6 +66,23 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
+        - name: docker
+          image: docker:dind
+          securityContext:
+            privileged: true
+          env:
+            - name: DOCKER_TLS_CERTDIR
+              value: ""
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: jenkins-data
+              mountPath: /var/jenkins_home
       volumes:
         - name: jenkins-data
           persistentVolumeClaim:
