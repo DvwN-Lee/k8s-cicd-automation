@@ -87,11 +87,12 @@
           labels:
             app: jenkins
         spec:
-          type: LoadBalancer
+          type: NodePort
           ports:
             - name: http
               port: 8080
               targetPort: 8080
+              nodePort: 30880
             - name: jnlp
               port: 50000
               targetPort: 50000

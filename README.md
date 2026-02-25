@@ -1,8 +1,5 @@
 # DKU CI/CD Infrastructure
 
-<p align="center">
-  <img src="screenshots/testapp.png" alt="DKU CI/CD Infrastructure" width="800">
-</p>
 
 CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab, Docker Registry를 배포하여 완전한 CI/CD 파이프라인을 구현한 Infrastructure as Code 프로젝트입니다.
 
@@ -387,7 +384,8 @@ terraform output -raw ansible_inventory > ../ansible/inventory/hosts.ini
 `ansible/group_vars/all.yml`에서 버전 확인:
 
 ```yaml
-kubernetes_version: "1.28.15-1.1"
+kubernetes_version: "1.28"
+kubernetes_apt_version: "1.28.15-1.1"
 cilium_version: "1.14.5"
 metallb_ip_range: "192.168.0.200-192.168.0.250"
 ```
@@ -431,7 +429,7 @@ kubectl logs deployment/jenkins -n devops -c jenkins | grep -A 5 "Jenkins initia
 kubectl apply -f manifests/gitlab/
 
 # Root 비밀번호 확인
-kubectl get secret gitlab-root-password -n devops -o jsonpath="{.data.password}" | base64 -d
+kubectl get secret gitlab-secret -n devops -o jsonpath="{.data.gitlab-root-password}" | base64 -d
 ```
 
 #### 3.3 Docker Registry 배포
@@ -484,7 +482,7 @@ kubectl get pods -n devops -l app=testapp
 │   ├── provider.tf            # CloudStack Provider 설정
 │   ├── main.tf                # 리소스 정의 (VM, Network, Port Forward)
 │   ├── variables.tf           # 변수 정의
-│   ├── terraform.tfvars       # 변수 값 (API 키 - .gitignore 권장)
+│   ├── terraform.tfvars.example  # 변수 값 예시 (복사하여 terraform.tfvars 생성)
 │   └── outputs.tf             # 출력 정의
 ├── ansible/                   # Ansible 구성
 │   ├── site.yml               # 메인 플레이북
@@ -514,13 +512,15 @@ kubectl get pods -n devops -l app=testapp
 │   │   └── secret.yaml
 │   ├── registry/              # Docker Registry 배포
 │   │   ├── deployment.yaml
+│   │   ├── deployment-tls.yaml  # TLS 활성화 버전
 │   │   ├── service.yaml
-│   │   └── pvc.yaml
+│   │   ├── pvc.yaml
+│   │   └── tls-secret.yaml    # TLS 인증서 시크릿
 │   └── metallb/               # MetalLB 설정
 │       ├── metallb-native.yaml
 │       └── config.yaml.j2
-├── testapp/                   # 테스트 애플리케이션
-│   ├── Dockerfile
+├── testapp/                   # 테스트 애플리케이션 (별도 생성 필요)
+│   ├── Dockerfile             # 컨테이너 이미지 빌드 정의
 │   ├── Jenkinsfile            # CI/CD 파이프라인 정의
 │   ├── html/                  # 정적 HTML 파일
 │   └── k8s/                   # Kubernetes 배포 매니페스트
@@ -664,11 +664,11 @@ cilium_version: "1.14.5"
 </tr>
 <tr>
 <td>testapp</td>
-<td align="center">default</td>
+<td align="center">devops</td>
 <td align="center">2</td>
 <td align="center">64Mi</td>
 <td align="center">50m</td>
-<td align="center">-</td>
+<td align="center">k8s-w2</td>
 </tr>
 </tbody>
 </table>
