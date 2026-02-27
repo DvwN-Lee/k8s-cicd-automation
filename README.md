@@ -1,7 +1,6 @@
-# DKU CI/CD Infrastructure
+# Kubernetes CI/CD Infrastructure
 
-
-CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab, Docker Registry를 배포하여 CI/CD 파이프라인을 구현한 Infrastructure as Code 프로젝트입니다.
+Terraform → Ansible 단일 흐름으로 CloudStack K8s 클러스터부터 Git Push to Deploy CI/CD 파이프라인까지 완전 자동화한 IaC 프로젝트
 
 **Cloud & Virtualization**
 
@@ -29,16 +28,19 @@ CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab
 ![GitLab](https://img.shields.io/badge/GitLab-FC6D26?style=flat&logo=gitlab&logoColor=white)
 ![Docker Registry](https://img.shields.io/badge/Docker_Registry-2496ED?style=flat&logo=docker&logoColor=white)
 
+- **기간:** 2025.11.27 ~ 2025.11.30 (4일)
+- **역할:** 1인 프로젝트 (Infrastructure 설계 및 구축)
+
 ---
 
 ## 목차
 
 - [프로젝트 개요](#프로젝트-개요)
 - [인프라 아키텍처](#인프라-아키텍처)
-- [사전 요구사항](#사전-요구사항)
+- [핵심 엔지니어링 결정](#핵심-엔지니어링-결정)
 - [빠른 시작](#빠른-시작)
 - [디렉토리 구조](#디렉토리-구조)
-- [서비스 접근 정보](#서비스-접근-정보)
+- [핵심 학습 및 한계 인식](#핵심-학습-및-한계-인식)
 - [주요 설정 참조](#주요-설정-참조)
 - [참고 문서](#참고-문서)
 
@@ -46,128 +48,13 @@ CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab
 
 ## 프로젝트 개요
 
-### 수행 목표
+### 해결하려 한 문제
 
-CloudStack 환경에서 Kubernetes 클러스터를 구축하고, Jenkins, GitLab, Docker Registry를 배포하여 완전한 CI/CD 파이프라인을 구현합니다.
+수동 Kubernetes 구성은 단계별 명령어 실행 순서에 의존하기 때문에 재현이 불가능합니다. 팀원이 동일한 환경을 다시 만들려면 동일한 실수를 반복하거나, 검증되지 않은 절차 문서에 의존해야 합니다. 또한 CloudStack 온프레미스 환경에서는 클러스터 네트워크, VM 프로비저닝, 포트 포워딩 규칙이 모두 수작업으로 맞물려야 하므로, 어느 한 단계의 누락이 전체 구성 실패로 이어집니다.
 
-### 항목별 성공 여부
+### 무엇을 만들었나
 
-<table>
-<thead>
-<tr>
-<th align="center">과제</th>
-<th>항목</th>
-<th align="center">상태</th>
-<th>비고</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center" rowspan="6"><strong>과제 1</strong></td>
-<td>CloudStack Provider 설정</td>
-<td align="center">완료</td>
-<td>API endpoint, API key, secret key 설정</td>
-</tr>
-<tr>
-<td>Isolated Network 생성</td>
-<td align="center">완료</td>
-<td>k8s-network</td>
-</tr>
-<tr>
-<td>Port Forwarding 규칙 생성</td>
-<td align="center">완료</td>
-<td>7개 규칙 (SSH, K8s API, Jenkins, GitLab, Registry, TestApp)</td>
-</tr>
-<tr>
-<td>Firewall 규칙 생성</td>
-<td align="center">완료</td>
-<td>7개 포트 개방 (0.0.0.0/0)</td>
-</tr>
-<tr>
-<td>VM 생성 (Master 1대, Worker 2대)</td>
-<td align="center">완료</td>
-<td>k8s-m, k8s-w1, k8s-w2</td>
-</tr>
-<tr>
-<td>Terraform Output</td>
-<td align="center">완료</td>
-<td>ansible_inventory 자동 생성</td>
-</tr>
-<tr>
-<td align="center" rowspan="6"><strong>과제 2</strong></td>
-<td>Ansible Inventory 생성</td>
-<td align="center">완료</td>
-<td>Terraform output 기반 자동 생성</td>
-</tr>
-<tr>
-<td>containerd, kubeadm 설치</td>
-<td align="center">완료</td>
-<td>v1.28.15</td>
-</tr>
-<tr>
-<td>kubeadm init</td>
-<td align="center">완료</td>
-<td>Control Plane 초기화</td>
-</tr>
-<tr>
-<td>Worker 노드 조인</td>
-<td align="center">완료</td>
-<td>2대 조인 완료</td>
-</tr>
-<tr>
-<td>CNI (Cilium) 구성</td>
-<td align="center">완료</td>
-<td>v1.14.5, kube-proxy 대체 모드</td>
-</tr>
-<tr>
-<td>MetalLB 구성</td>
-<td align="center">완료</td>
-<td>L2 모드</td>
-</tr>
-<tr>
-<td align="center" rowspan="4"><strong>과제 3</strong></td>
-<td>Jenkins 배포</td>
-<td align="center">완료</td>
-<td>NodePort 30880</td>
-</tr>
-<tr>
-<td>GitLab 배포</td>
-<td align="center">완료</td>
-<td>NodePort 30080, 30022</td>
-</tr>
-<tr>
-<td>Docker Registry 배포</td>
-<td align="center">완료</td>
-<td>NodePort 30500</td>
-</tr>
-<tr>
-<td>PVC 구성</td>
-<td align="center">완료</td>
-<td>hostPath 기반</td>
-</tr>
-<tr>
-<td align="center" rowspan="4"><strong>과제 4</strong></td>
-<td>GitLab 테스트 프로젝트</td>
-<td align="center">완료</td>
-<td>testapp</td>
-</tr>
-<tr>
-<td>Jenkins Pipeline</td>
-<td align="center">완료</td>
-<td>Build, Push, Deploy</td>
-</tr>
-<tr>
-<td>Registry 이미지 Push</td>
-<td align="center">완료</td>
-<td>testapp:latest</td>
-</tr>
-<tr>
-<td>Kubernetes 배포</td>
-<td align="center">완료</td>
-<td>2 replicas</td>
-</tr>
-</tbody>
-</table>
+Terraform CloudStack Provider로 VM 3대(Control Plane 1, Worker 2), Isolated Network, Port Forwarding 7개 규칙을 선언적으로 정의하고, `terraform output`이 Ansible Inventory를 자동 생성하도록 연결했습니다. Ansible은 이 인벤토리를 받아 containerd 런타임 설치 → kubeadm 클러스터 초기화 → Cilium CNI 구성 → MetalLB 설치 → Jenkins/GitLab/Registry 배포까지 멱등하게 수행합니다. 최종적으로 GitLab Push 이벤트가 Jenkins 파이프라인을 트리거하여 Docker 이미지를 빌드하고 클러스터에 자동 배포하는 Git Push to Deploy 흐름이 완성됩니다.
 
 ### 기술 스택
 
@@ -307,41 +194,46 @@ graph LR
 </tbody>
 </table>
 
-**노드 역할 분리:**
-- **k8s-w1 (DevOps Node):** GitLab, Jenkins, Registry 등 DevOps 도구 배치 (Large: 4 CPU, 8GB RAM)
-- **k8s-w2 (App Node):** 애플리케이션 워크로드 배치 (Medium: 2 CPU, 4GB RAM)
+### 노드 역할 분리 전략
+
+GitLab(5Gi 메모리 요구)과 Jenkins(빌드 시 CPU 스파이크)는 리소스 집약적인 DevOps 도구입니다. 이 도구들을 애플리케이션 워크로드와 같은 노드에 배치하면, 빌드 실행 중 애플리케이션 파드가 자원 부족으로 Eviction될 수 있습니다. 이를 방지하기 위해 Node Selector로 워크로드를 물리적으로 분리했습니다.
+
+- **k8s-w1 (DevOps Node):** GitLab, Jenkins, Registry 배치. Large 인스턴스(4 CPU, 8GB RAM)로 DevOps 도구의 메모리·CPU 요구를 수용합니다.
+- **k8s-w2 (App Node):** 애플리케이션 워크로드(testapp) 배치. Medium 인스턴스(2 CPU, 4GB RAM)로 서비스 파드를 DevOps 도구 리소스 경합으로부터 격리합니다.
 
 ---
 
-## 사전 요구사항
+## 핵심 엔지니어링 결정
 
-### CloudStack 환경
+### 결정 1: Terraform Output → Ansible Inventory 자동 생성
 
-- CloudStack 계정 및 API 액세스
-- Zone, Network Offering 정보
-- SSH 키페어 생성
+**문제:** Terraform이 VM을 생성한 뒤 Ansible이 해당 VM의 IP를 알아야 합니다. 수동으로 IP를 복사해 Inventory를 편집하면 오타 가능성과 자동화 단절이 발생합니다.
 
-### 로컬 환경
+**선택:** `terraform output -raw ansible_inventory > ansible/inventory/hosts.ini` 한 줄로 연결. Terraform `outputs.tf`가 hosts.ini 형식의 문자열을 출력하도록 설계하여, Ansible 실행 전 수동 개입을 0으로 만들었습니다.
 
-- **Terraform:** v1.0 이상
-- **Ansible:** v2.9 이상
-- **kubectl:** v1.28 이상
-- **SSH 클라이언트**
+**결과:** Terraform apply → output 파이프 → Ansible playbook 실행의 단일 자동화 흐름이 성립됩니다. 환경을 재구성할 때도 동일한 세 단계만 반복하면 됩니다.
 
-### SSH 키 설정
+### 결정 2: Cilium CNI (kube-proxy 대체 eBPF 모드)
 
-```bash
-# SSH 키 생성 (이미 있다면 생략)
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/k8s_key -N ""
-```
+**문제:** 기본 kube-proxy는 iptables 기반으로, 규칙 수가 증가할수록 패킷 처리 레이턴시가 선형 증가합니다. 또한 이후 서비스 메시 도입을 고려하고 있었는데, Cilium은 Istio와 통합이 검증된 CNI입니다.
+
+**선택:** Cilium v1.14.5를 kube-proxy 대체 모드로 설치. eBPF 커널 프로그램이 iptables 규칙 없이 패킷을 직접 처리합니다.
+
+**결과:** 소규모 클러스터에서도 네트워크 정책 적용이 iptables 없이 동작함을 확인했고, 이후 서비스 메시 도입 시 Cilium 위에 Istio를 통합할 수 있는 기반이 마련되었습니다.
+
+### 결정 3: Node Selector 기반 워크로드 격리
+
+**문제:** GitLab은 최소 4GB 이상의 메모리를 요구하며, Jenkins 빌드는 CPU 스파이크를 유발합니다. 이를 애플리케이션 파드와 같은 노드에 혼재시키면 리소스 경합으로 서비스 가용성이 불안정해집니다.
+
+**선택:** 각 Deployment 매니페스트에 `nodeSelector: kubernetes.io/hostname: k8s-w1` (DevOps 도구) 또는 `k8s-w2` (앱 워크로드)를 명시하여 Kubernetes 스케줄러가 지정 노드에만 배치하도록 강제했습니다.
+
+**결과:** DevOps 도구의 리소스 사용이 애플리케이션 파드에 영향을 주지 않는 격리된 실행 환경을 구성했습니다.
 
 ---
 
 ## 빠른 시작
 
 ### 1. 인프라 프로비저닝 (Terraform)
-
-#### 1.1 Terraform 변수 설정
 
 `terraform/terraform.tfvars` 파일 생성:
 
@@ -359,18 +251,10 @@ network_offering  = "DefaultIsolatedNetworkOfferingWithSourceNatService"
 ssh_public_key = "~/.ssh/k8s_key.pub"
 ```
 
-#### 1.2 Terraform 실행
-
 ```bash
 cd terraform
-
-# 초기화
 terraform init
-
-# 플랜 확인
 terraform plan
-
-# 인프라 생성
 terraform apply
 
 # Ansible Inventory 자동 생성
@@ -379,9 +263,7 @@ terraform output -raw ansible_inventory > ../ansible/inventory/hosts.ini
 
 ### 2. Kubernetes 클러스터 구성 (Ansible)
 
-#### 2.1 Ansible 변수 확인
-
-`ansible/group_vars/all.yml`에서 버전 확인:
+`ansible/group_vars/all.yml`에서 버전 확인 후 실행:
 
 ```yaml
 kubernetes_version: "1.28"
@@ -390,12 +272,8 @@ cilium_version: "1.14.5"
 metallb_ip_range: "192.168.0.200-192.168.0.250"
 ```
 
-#### 2.2 Ansible Playbook 실행
-
 ```bash
 cd ansible
-
-# 클러스터 구성 (containerd, K8s, Cilium, MetalLB)
 ansible-playbook -i inventory/hosts.ini site.yml
 
 # 클러스터 상태 확인 (Master 노드에서)
@@ -414,36 +292,15 @@ k8s-w2   Ready    <none>          1h    v1.28.15
 
 ### 3. DevOps 도구 배포
 
-#### 3.1 Jenkins 배포
-
 ```bash
 kubectl apply -f manifests/jenkins/
-
-# 초기 비밀번호 확인
-kubectl logs deployment/jenkins -n devops -c jenkins | grep -A 5 "Jenkins initial setup"
-```
-
-#### 3.2 GitLab 배포
-
-```bash
 kubectl apply -f manifests/gitlab/
-
-# Root 비밀번호 확인
-kubectl get secret gitlab-secret -n devops -o jsonpath="{.data.gitlab-root-password}" | base64 -d
-```
-
-#### 3.3 Docker Registry 배포
-
-```bash
 kubectl apply -f manifests/registry/
 ```
 
 ### 4. CI/CD 파이프라인 검증
 
-#### 4.1 testapp 프로젝트 생성
-
-1. GitLab에서 `testapp` 프로젝트 생성
-2. 로컬에서 testapp 디렉토리를 GitLab에 push:
+GitLab에서 `testapp` 프로젝트를 생성하고 로컬 코드를 push합니다:
 
 ```bash
 cd testapp
@@ -454,21 +311,10 @@ git commit -m "Initial commit"
 git push -u origin main
 ```
 
-#### 4.2 Jenkins Pipeline 구성
-
-1. Jenkins에서 New Item → Pipeline 선택
-2. Pipeline 섹션에서:
-   - Definition: `Pipeline script from SCM`
-   - SCM: `Git`
-   - Repository URL: `<GitLab_Repository_URL>`
-   - Script Path: `Jenkinsfile`
-
-#### 4.3 빌드 실행
-
-Jenkins에서 "Build Now" 클릭 후 결과 확인:
+Jenkins에서 New Item → Pipeline → SCM: Git → Repository URL: `<GitLab_Repository_URL>` → Script Path: `Jenkinsfile` 순으로 설정한 뒤 "Build Now"를 실행합니다.
 
 ```bash
-# Kubernetes 배포 확인
+# 배포 확인
 kubectl get pods -n devops -l app=testapp
 ```
 
@@ -531,51 +377,31 @@ kubectl get pods -n devops -l app=testapp
 
 ---
 
-## 서비스 접근 정보
+## 핵심 학습 및 한계 인식
 
-### 서비스 포트
+### 핵심 학습
 
-<table>
-<thead>
-<tr>
-<th>서비스</th>
-<th>포트</th>
-<th>비고</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GitLab HTTP</td>
-<td>30080</td>
-<td>root / (Secret에 정의)</td>
-</tr>
-<tr>
-<td>GitLab SSH</td>
-<td>30022</td>
-<td>Git 작업용</td>
-</tr>
-<tr>
-<td>Jenkins</td>
-<td>30880</td>
-<td>초기 비밀번호 확인 필요</td>
-</tr>
-<tr>
-<td>Docker Registry</td>
-<td>30500</td>
-<td>비보안 레지스트리</td>
-</tr>
-<tr>
-<td>Kubernetes API</td>
-<td>6443</td>
-<td>kubeconfig 필요</td>
-</tr>
-<tr>
-<td>SSH (Master)</td>
-<td>2222</td>
-<td>Master 노드 접근</td>
-</tr>
-</tbody>
-</table>
+**Ansible 멱등성 설계의 중요성**
+
+동일한 플레이북을 두 번 실행했을 때 클러스터가 정상 상태라면 변경 없이 통과되어야 합니다. `kubeadm init`을 단순히 실행하는 것이 아니라, 이미 초기화된 클러스터인지 확인하는 조건 분기를 Role에 명시하는 작업이 멱등성 설계의 핵심임을 직접 확인했습니다.
+
+**Terraform-Ansible 연계 패턴**
+
+두 도구는 책임 경계가 명확합니다. Terraform은 인프라 상태(VM 존재 여부, 네트워크 구성)를 선언하고, Ansible은 소프트웨어 상태(패키지 설치, 서비스 구성)를 선언합니다. `terraform output`을 통해 두 도구를 연결하면 상태 정보를 수동으로 전달하는 오류 지점이 제거됩니다.
+
+**Cilium eBPF 통합**
+
+kube-proxy 대체 모드에서 Cilium이 iptables 규칙 없이 서비스 라우팅을 처리하는 방식을 확인했습니다. 동시에 Cilium 설치 파라미터 한 줄의 오입력이 CNI 전체 초기화 실패로 이어질 수 있음을 트러블슈팅 과정에서 경험했으며, 설치 파라미터 검증의 중요성을 인식했습니다.
+
+### 인식한 한계
+
+**온프레미스 환경 제약**
+
+CloudStack 온프레미스는 클라우드 관리형 서비스(GKE, EKS 등)와 달리 Control Plane HA, 노드 오토스케일링, 관리형 스토리지를 제공하지 않습니다. 단일 Control Plane 구성이므로 Master 노드 장애 시 클러스터 전체가 단절됩니다.
+
+**인프라 검증 체계 부재**
+
+Terraform apply 이후 실제 VM이 올바른 스펙으로 생성되었는지, Ansible 적용 후 클러스터 상태가 기대값과 일치하는지를 자동으로 검증하는 체계가 없었습니다. 배포 결과는 수동 kubectl 확인에 의존했습니다.
 
 ---
 
@@ -609,7 +435,7 @@ kubectl get pods -n devops -l app=testapp
 </tr>
 <tr>
 <td><code>zone_name</code></td>
-<td><code>DKU</code></td>
+<td>-</td>
 <td>CloudStack Zone 이름</td>
 </tr>
 </tbody>
@@ -620,7 +446,7 @@ kubectl get pods -n devops -l app=testapp
 `ansible/group_vars/all.yml`:
 
 ```yaml
-kubernetes_version: "1.28.15-1.1"
+kubernetes_version: "1.28"
 cilium_version: "1.14.5"
 ```
 
