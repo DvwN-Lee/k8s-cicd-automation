@@ -6,6 +6,7 @@
 .terraform/
 .terraform.lock.hcl
 terraform.tfplan
+plan.out
 crash.log
 override.tf
 override.tf.json
@@ -80,6 +81,9 @@ $RECYCLE.BIN/
 
 # Claude Code
 .claude/
+
+# Gemini
+.gemini-mcp/
 
 # Logs
 *.log

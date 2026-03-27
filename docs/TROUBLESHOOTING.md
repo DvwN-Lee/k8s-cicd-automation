@@ -19,25 +19,25 @@
 
 | ID | 케이스 | 난이도 | 등급 | 카테고리 |
 |----|--------|--------|------|----------|
-| CASE-01 | CloudStack 좀비 리소스 문제 | 2/5 | B | Infrastructure |
-| CASE-02 | VM 인터넷 연결 불가 - Egress Deny 정책 | 3/5 | A | Infrastructure |
-| CASE-03 | CloudStack CPU 리소스 제한 | 1/5 | C | Infrastructure |
-| CASE-04 | Ansible SSH 연결 문제 - ProxyCommand | 2/5 | B | Kubernetes |
-| CASE-05 | kubeadm join 토큰 만료 | 1/5 | C | Kubernetes |
-| CASE-06 | Cilium CNI 설치 중 네트워크 끊김 - eBPF 비대칭 라우팅 | 5/5 | A★★ | Kubernetes |
-| CASE-07 | VM 재부팅 후 Pod Unknown 상태 | 1/5 | C | Kubernetes |
-| CASE-08 | GitLab Pod Pending - PV nodeAffinity | 2/5 | B | DevOps 도구 |
-| CASE-09 | Jenkins CrashLoopBackOff - initContainer 볼륨 권한 | 3/5 | A | DevOps 도구 |
-| CASE-10 | NodePort 불일치로 외부 접속 실패 | 2/5 | B | DevOps 도구 |
-| CASE-11 | GitLab OOMKilled - 메모리 튜닝 | 2/5 | B | DevOps 도구 |
-| CASE-12 | GitLab 비밀번호 환경변수 미작동 - 애플리케이션 수명주기 | 3/5 | A | DevOps 도구 |
-| CASE-13 | GitLab 사용자 계정 승인 대기 | 2/5 | B | DevOps 도구 |
-| CASE-14 | Jenkins에서 Docker 명령 실행 - DinD 아키텍처 | 4/5 | A | CI/CD 파이프라인 |
-| CASE-15 | Docker Registry Insecure 설정 | 2/5 | B | CI/CD 파이프라인 |
-| CASE-16 | Worker 노드 ImagePullBackOff - containerd 설정 | 3/5 | A | CI/CD 파이프라인 |
-| CASE-17 | Jenkinsfile Namespace 불일치 | 1/5 | C | CI/CD 파이프라인 |
-| CASE-18 | Git Push 충돌 및 SSH 설정 | 1/5 | C | CI/CD 파이프라인 |
-| CASE-19 | curl 타임아웃 vs 브라우저 정상 - 5계층 체계적 진단 | 4/5 | A | 네트워크 진단 |
+| [CASE-01](#case-01-cloudstack-좀비-리소스-문제) | CloudStack 좀비 리소스 문제 | 2/5 | B | Infrastructure |
+| [CASE-02](#case-02-vm-인터넷-연결-불가---egress-deny-정책-) | VM 인터넷 연결 불가 - Egress Deny 정책 | 3/5 | A | Infrastructure |
+| [CASE-03](#case-03-cloudstack-cpu-리소스-제한) | CloudStack CPU 리소스 제한 | 1/5 | C | Infrastructure |
+| [CASE-04](#case-04-ansible-ssh-연결-문제---proxycommand) | Ansible SSH 연결 문제 - ProxyCommand | 2/5 | B | Kubernetes |
+| [CASE-05](#case-05-kubeadm-join-토큰-만료) | kubeadm join 토큰 만료 | 1/5 | C | Kubernetes |
+| [CASE-06](#case-06-cilium-cni-설치-중-네트워크-끊김---ebpf-비대칭-라우팅-) | Cilium CNI 설치 중 네트워크 끊김 - eBPF 비대칭 라우팅 | 5/5 | A★★ | Kubernetes |
+| [CASE-07](#case-07-vm-재부팅-후-pod-unknown-상태) | VM 재부팅 후 Pod Unknown 상태 | 1/5 | C | Kubernetes |
+| [CASE-08](#case-08-gitlab-pod-pending---pv-nodeaffinity) | GitLab Pod Pending - PV nodeAffinity | 2/5 | B | DevOps 도구 |
+| [CASE-09](#case-09-jenkins-crashloopbackoff---initcontainer-볼륨-권한-) | Jenkins CrashLoopBackOff - initContainer 볼륨 권한 | 3/5 | A | DevOps 도구 |
+| [CASE-10](#case-10-nodeport-불일치로-외부-접속-실패) | NodePort 불일치로 외부 접속 실패 | 2/5 | B | DevOps 도구 |
+| [CASE-11](#case-11-gitlab-oomkilled---메모리-튜닝) | GitLab OOMKilled - 메모리 튜닝 | 2/5 | B | DevOps 도구 |
+| [CASE-12](#case-12-gitlab-비밀번호-환경변수-미작동---애플리케이션-수명주기-) | GitLab 비밀번호 환경변수 미작동 - 애플리케이션 수명주기 | 3/5 | A | DevOps 도구 |
+| [CASE-13](#case-13-gitlab-사용자-계정-승인-대기) | GitLab 사용자 계정 승인 대기 | 2/5 | B | DevOps 도구 |
+| [CASE-14](#case-14-jenkins에서-docker-명령-실행---dind-아키텍처-) | Jenkins에서 Docker 명령 실행 - DinD 아키텍처 | 4/5 | A | CI/CD 파이프라인 |
+| [CASE-15](#case-15-docker-registry-insecure-설정) | Docker Registry Insecure 설정 | 2/5 | B | CI/CD 파이프라인 |
+| [CASE-16](#case-16-worker-노드-imagepullbackoff---containerd-설정-) | Worker 노드 ImagePullBackOff - containerd 설정 | 3/5 | A | CI/CD 파이프라인 |
+| [CASE-17](#case-17-jenkinsfile-namespace-불일치) | Jenkinsfile Namespace 불일치 | 1/5 | C | CI/CD 파이프라인 |
+| [CASE-18](#case-18-git-push-충돌-및-ssh-설정) | Git Push 충돌 및 SSH 설정 | 1/5 | C | CI/CD 파이프라인 |
+| [CASE-19](#case-19-curl-타임아웃-vs-브라우저-정상---5계층-체계적-진단-) | curl 타임아웃 vs 브라우저 정상 - 5계층 체계적 진단 | 4/5 | A | 네트워크 진단 |
 
 ---
 
