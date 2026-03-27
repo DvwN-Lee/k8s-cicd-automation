@@ -231,6 +231,8 @@ k8s-w2   Ready    <none>          1h    v1.28.15
 
 ### 3. DevOps 도구 배포
 
+> **참고:** `manifests/registry/tls-secret.yaml`과 `manifests/gitlab/secret.yaml`에 플레이스홀더 값이 포함되어 있습니다. 적용 전 실제 값으로 변경하세요. 각 파일의 주석에 생성 방법이 안내되어 있습니다.
+
 ```bash
 kubectl apply -f manifests/jenkins/
 kubectl apply -f manifests/gitlab/
