@@ -123,76 +123,15 @@ graph LR
 
 ### Port Forwarding 규칙
 
-<table>
-<thead>
-<tr>
-<th>서비스</th>
-<th align="center">외부 포트</th>
-<th align="center">NodePort</th>
-<th align="center">Container Port</th>
-<th align="center">포트 포워딩 대상</th>
-<th align="center">Pod 배치</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>SSH (Jump)</td>
-<td align="center">2222</td>
-<td align="center">-</td>
-<td align="center">22</td>
-<td align="center">k8s-m</td>
-<td align="center">-</td>
-</tr>
-<tr>
-<td>Kubernetes API</td>
-<td align="center">6443</td>
-<td align="center">-</td>
-<td align="center">6443</td>
-<td align="center">k8s-m</td>
-<td align="center">-</td>
-</tr>
-<tr>
-<td>GitLab HTTP</td>
-<td align="center">30080</td>
-<td align="center">30080</td>
-<td align="center">80</td>
-<td align="center">k8s-w1</td>
-<td align="center">k8s-w1</td>
-</tr>
-<tr>
-<td>GitLab SSH</td>
-<td align="center">30022</td>
-<td align="center">30022</td>
-<td align="center">22</td>
-<td align="center">k8s-w1</td>
-<td align="center">k8s-w1</td>
-</tr>
-<tr>
-<td>Jenkins</td>
-<td align="center">30880</td>
-<td align="center">30880</td>
-<td align="center">8080</td>
-<td align="center">k8s-w1</td>
-<td align="center">k8s-w1</td>
-</tr>
-<tr>
-<td>Docker Registry</td>
-<td align="center">30500</td>
-<td align="center">30500</td>
-<td align="center">5000</td>
-<td align="center">k8s-w1</td>
-<td align="center">k8s-w1</td>
-</tr>
-<tr>
-<td>TestApp</td>
-<td align="center">30800</td>
-<td align="center">30800</td>
-<td align="center">80</td>
-<td align="center">k8s-w2</td>
-<td align="center">-</td>
-</tr>
-</tbody>
-</table>
+| 서비스 | 외부 포트 | NodePort | Container Port | 포트 포워딩 대상 | Pod 배치 |
+|--------|:---------:|:--------:|:--------------:|:---------------:|:--------:|
+| SSH (Jump) | 2222 | - | 22 | k8s-m | - |
+| Kubernetes API | 6443 | - | 6443 | k8s-m | - |
+| GitLab HTTP | 30080 | 30080 | 80 | k8s-w1 | k8s-w1 |
+| GitLab SSH | 30022 | 30022 | 22 | k8s-w1 | k8s-w1 |
+| Jenkins | 30880 | 30880 | 8080 | k8s-w1 | k8s-w1 |
+| Docker Registry | 30500 | 30500 | 5000 | k8s-w1 | k8s-w1 |
+| TestApp | 30800 | 30800 | 80 | k8s-w2 | - |
 
 ### 노드 역할 분리 전략
 
@@ -292,6 +231,8 @@ k8s-w2   Ready    <none>          1h    v1.28.15
 
 ### 3. DevOps 도구 배포
 
+> **참고:** `manifests/registry/tls-secret.yaml`과 `manifests/gitlab/secret.yaml`에 플레이스홀더 값이 포함되어 있습니다. 적용 전 실제 값으로 변경하세요. 각 파일의 주석에 생성 방법이 안내되어 있습니다.
+
 ```bash
 kubectl apply -f manifests/jenkins/
 kubectl apply -f manifests/gitlab/
@@ -300,10 +241,11 @@ kubectl apply -f manifests/registry/
 
 ### 4. CI/CD 파이프라인 검증
 
-GitLab에서 `testapp` 프로젝트를 생성하고 로컬 코드를 push합니다:
+테스트 애플리케이션을 별도로 생성합니다. `testapp` 디렉토리에 Dockerfile, Jenkinsfile, HTML 소스, Kubernetes 매니페스트(k8s/)를 구성한 뒤 GitLab에 push합니다:
 
 ```bash
-cd testapp
+mkdir testapp && cd testapp
+# Dockerfile, Jenkinsfile, html/, k8s/ 디렉토리 구성
 git init
 git remote add origin <GitLab_Repository_URL>
 git add .
@@ -324,55 +266,51 @@ kubectl get pods -n devops -l app=testapp
 
 ```
 /
-├── terraform/                 # Terraform IaC 코드
-│   ├── provider.tf            # CloudStack Provider 설정
-│   ├── main.tf                # 리소스 정의 (VM, Network, Port Forward)
-│   ├── variables.tf           # 변수 정의
+├── terraform/                    # Terraform IaC 코드
+│   ├── provider.tf               # CloudStack Provider 설정
+│   ├── main.tf                   # 리소스 정의 (VM, Network, Port Forward)
+│   ├── variables.tf              # 변수 정의
 │   ├── terraform.tfvars.example  # 변수 값 예시 (복사하여 terraform.tfvars 생성)
-│   └── outputs.tf             # 출력 정의
-├── ansible/                   # Ansible 구성
-│   ├── site.yml               # 메인 플레이북
+│   └── outputs.tf                # 출력 정의 (Ansible Inventory 자동 생성 포함)
+├── ansible/                      # Ansible 구성
+│   ├── ansible.cfg               # Ansible 설정 파일
+│   ├── site.yml                  # 메인 플레이북
 │   ├── group_vars/
-│   │   └── all.yml            # 전역 변수
+│   │   └── all.yml               # 전역 변수
 │   ├── inventory/
-│   │   └── hosts.ini          # Terraform에서 생성된 인벤토리
-│   └── roles/                 # Ansible Roles
-│       ├── common/            # 공통 설정 (swap 비활성화 등)
-│       ├── containerd/        # containerd 런타임 설치
-│       ├── kubernetes/        # kubeadm, kubelet, kubectl 설치
-│       ├── k8s_master/        # Master 노드 초기화
-│       ├── k8s_worker/        # Worker 노드 조인
-│       ├── cni/               # Cilium CNI 설치
-│       └── metallb/           # MetalLB 설치
-├── manifests/                 # Kubernetes 매니페스트
-│   ├── jenkins/               # Jenkins 배포
+│   │   └── hosts.ini             # Terraform에서 자동 생성 (git 미추적)
+│   └── roles/                    # Ansible Roles
+│       ├── common/               # 공통 설정 (swap 비활성화 등)
+│       ├── containerd/           # containerd 런타임 설치
+│       ├── kubernetes/           # kubeadm, kubelet, kubectl 설치
+│       ├── k8s_master/           # Master 노드 초기화
+│       ├── k8s_worker/           # Worker 노드 조인
+│       ├── cni/                  # Cilium CNI 설치
+│       └── metallb/              # MetalLB 설치
+├── manifests/                    # Kubernetes 매니페스트
+│   ├── jenkins/                  # Jenkins 배포
 │   │   ├── namespace.yaml
 │   │   ├── deployment.yaml
 │   │   ├── service.yaml
 │   │   ├── pvc.yaml
 │   │   └── config.yaml
-│   ├── gitlab/                # GitLab 배포
+│   ├── gitlab/                   # GitLab 배포
 │   │   ├── deployment.yaml
 │   │   ├── service.yaml
 │   │   ├── pvc.yaml
 │   │   └── secret.yaml
-│   ├── registry/              # Docker Registry 배포
+│   ├── registry/                 # Docker Registry 배포
 │   │   ├── deployment.yaml
-│   │   ├── deployment-tls.yaml  # TLS 활성화 버전
+│   │   ├── deployment-tls.yaml   # TLS 활성화 버전
 │   │   ├── service.yaml
 │   │   ├── pvc.yaml
-│   │   └── tls-secret.yaml    # TLS 인증서 시크릿
-│   └── metallb/               # MetalLB 설정
+│   │   └── tls-secret.yaml      # TLS 인증서 시크릿 (값 직접 입력 필요)
+│   └── metallb/                  # MetalLB 설정
 │       ├── metallb-native.yaml
 │       └── config.yaml.j2
-├── testapp/                   # 테스트 애플리케이션 (별도 생성 필요)
-│   ├── Dockerfile             # 컨테이너 이미지 빌드 정의
-│   ├── Jenkinsfile            # CI/CD 파이프라인 정의
-│   ├── html/                  # 정적 HTML 파일
-│   └── k8s/                   # Kubernetes 배포 매니페스트
-├── docs/                      # 문서
-│   └── TROUBLESHOOTING.md     # 트러블슈팅 가이드
-└── README.md                  # 본 문서
+├── docs/                         # 문서
+│   └── TROUBLESHOOTING.md        # 트러블슈팅 가이드
+└── README.md                     # 본 문서
 ```
 
 ---
@@ -409,37 +347,12 @@ Terraform apply 이후 실제 VM이 올바른 스펙으로 생성되었는지, A
 
 ### Terraform 변수
 
-<table>
-<thead>
-<tr>
-<th>변수명</th>
-<th>기본값</th>
-<th>설명</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>network_name</code></td>
-<td><code>k8s-network</code></td>
-<td>네트워크 이름</td>
-</tr>
-<tr>
-<td><code>network_cidr</code></td>
-<td>-</td>
-<td>네트워크 CIDR 대역</td>
-</tr>
-<tr>
-<td><code>network_gateway</code></td>
-<td>-</td>
-<td>게이트웨이 주소</td>
-</tr>
-<tr>
-<td><code>zone_name</code></td>
-<td>-</td>
-<td>CloudStack Zone 이름</td>
-</tr>
-</tbody>
-</table>
+| 변수명 | 기본값 | 설명 |
+|--------|--------|------|
+| `network_name` | `k8s-network` | 네트워크 이름 |
+| `network_cidr` | - | 네트워크 CIDR 대역 |
+| `network_gateway` | - | 게이트웨이 주소 |
+| `zone_name` | - | CloudStack Zone 이름 |
 
 ### Ansible 변수
 
@@ -452,52 +365,12 @@ cilium_version: "1.14.5"
 
 ### Kubernetes 리소스 요약
 
-<table>
-<thead>
-<tr>
-<th>서비스</th>
-<th align="center">Namespace</th>
-<th align="center">Replicas</th>
-<th align="center">Memory Limit</th>
-<th align="center">CPU Limit</th>
-<th align="center">배포 노드</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Jenkins</td>
-<td align="center">devops</td>
-<td align="center">1</td>
-<td align="center">2Gi</td>
-<td align="center">1000m</td>
-<td align="center">k8s-w1</td>
-</tr>
-<tr>
-<td>GitLab</td>
-<td align="center">devops</td>
-<td align="center">1</td>
-<td align="center">5Gi</td>
-<td align="center">2000m</td>
-<td align="center">k8s-w1</td>
-</tr>
-<tr>
-<td>Registry</td>
-<td align="center">devops</td>
-<td align="center">1</td>
-<td align="center">512Mi</td>
-<td align="center">500m</td>
-<td align="center">k8s-w1</td>
-</tr>
-<tr>
-<td>testapp</td>
-<td align="center">devops</td>
-<td align="center">2</td>
-<td align="center">64Mi</td>
-<td align="center">50m</td>
-<td align="center">k8s-w2</td>
-</tr>
-</tbody>
-</table>
+| 서비스 | Namespace | Replicas | Memory Limit | CPU Limit | 배포 노드 |
+|--------|:---------:|:--------:|:------------:|:---------:|:---------:|
+| Jenkins | devops | 1 | 2Gi | 1000m | k8s-w1 |
+| GitLab | devops | 1 | 5Gi | 2000m | k8s-w1 |
+| Registry | devops | 1 | 512Mi | 500m | k8s-w1 |
+| testapp | devops | 2 | 64Mi | 50m | k8s-w2 |
 
 ---
 
